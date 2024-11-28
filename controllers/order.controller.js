@@ -1,5 +1,5 @@
 const Order = require('../models/order.models');
-const Room = require('../models/room.models'); // Pastikan model Room diimpor
+const Room = require('../models/room.models');
 
 module.exports = {
     // Mendapatkan semua order dengan populasi user dan room
