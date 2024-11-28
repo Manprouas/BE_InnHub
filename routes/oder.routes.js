@@ -1,5 +1,4 @@
 const express = require('express')
-const { login, register } = require('../controllers/user.controllers')
 const { getAllOrders, getOrderById, createOrder, updateOrder, deleteOrder } = require('../controllers/order.controller')
 const router = express.Router()
 
