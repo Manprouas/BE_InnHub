@@ -1,4 +1,7 @@
 const User = require('../models/user.models');
+const upload = require('../middleware/multer')
+const fs = require('fs')
+const path = require('path')
 
 module.exports = {
     // Get all users
@@ -29,16 +32,26 @@ module.exports = {
     // Create a new user
     createUser: async (req, res) => {
         try {
-            const { username, email, password, phone, is_admin } = req.body; // Ambil data dari request body
-            const newUser = new User({
-                username,
-                email,
-                password,
-                phone,
-                is_admin,
+            upload.single('gambar')(req, res, async (err) => {
+                if (err) {
+                    return res.status(400).json({ message: 'Error uploading image', error: err.message });
+                }
+
+                const { username, email, password, phone, is_admin } = req.body;
+                const gambar = req.file ? req.file.filename : null; // Ambil nama file gambar
+
+                const newUser = new User({
+                    username,
+                    email,
+                    password,
+                    phone,
+                    is_admin,
+                    gambar,
+                });
+
+                const savedUser = await newUser.save();
+                res.status(201).json(savedUser);
             });
-            const savedUser = await newUser.save(); // Simpan user baru ke database
-            res.status(201).json(savedUser);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error creating user', error });
@@ -48,14 +61,44 @@ module.exports = {
     // Update user by ID
     updateUserById: async (req, res) => {
         try {
-            const updates = req.body; // Ambil data update dari request body
-            const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, {
-                new: true,
-            }); // Update user berdasarkan ID
-            if (!updatedUser) {
-                return res.status(404).json({ message: 'User not found' });
-            }
-            res.status(200).json(updatedUser);
+            // Middleware upload untuk mengunggah file
+            upload.single('gambar')(req, res, async (err) => {
+                if (err) {
+                    return res.status(400).json({ message: 'Error uploading image', error: err.message });
+                }
+
+                // Cari user berdasarkan ID
+                const user = await User.findById(req.params.id);
+                if (!user) {
+                    return res.status(404).json({ message: 'User not found' });
+                }
+
+                // Hapus gambar lama jika ada file baru diunggah
+                if (req.file) {
+                    const oldImagePath = path.join(__dirname, '../uploads', user.gambar);
+                    if (fs.existsSync(oldImagePath)) {
+                        try {
+                            fs.unlinkSync(oldImagePath); // Hapus file lama
+                            console.log(`Old file deleted: ${oldImagePath}`);
+                        } catch (error) {
+                            console.error('Error deleting old file:', error);
+                        }
+                    }
+                }
+
+                // Perbarui data user dengan data baru
+                const updates = { ...req.body };
+                if (req.file) {
+                    updates.gambar = req.file.filename; // Perbarui nama file gambar
+                }
+
+                const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+                if (!updatedUser) {
+                    return res.status(404).json({ message: 'User not found' });
+                }
+
+                res.status(200).json(updatedUser);
+            });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error updating user', error });
