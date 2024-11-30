@@ -64,26 +64,39 @@ module.exports = {
             if (err) {
                 return res.status(400).json({ message: 'Error uploading image', error: err.message });
             }
-
+    
             try {
+                // Cari user berdasarkan ID
                 const user = await User.findById(req.params.id);
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
-
+    
+                // Hapus gambar lama jika ada file baru diunggah
                 if (req.file) {
                     const oldImagePath = path.join(__dirname, '../uploads', user.gambar);
                     if (fs.existsSync(oldImagePath)) {
-                        fs.unlinkSync(oldImagePath);
+                        try {
+                            fs.unlinkSync(oldImagePath); // Hapus file lama
+                            console.log(`Old file deleted: ${oldImagePath}`);
+                        } catch (error) {
+                            console.error('Error deleting old file:', error);
+                        }
                     }
                 }
-
+    
+                // Perbarui data user dengan data baru
                 const updates = { ...req.body };
                 if (req.file) {
-                    updates.gambar = req.file.filename;
+                    updates.gambar = req.file.filename; // Perbarui nama file gambar
                 }
-
+    
                 const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+                if (!updatedUser) {
+                    return res.status(404).json({ message: 'User not found' });
+                }
+    
+                // Kirim data user yang diperbarui sebagai respons
                 res.status(200).json(updatedUser);
             } catch (error) {
                 console.error(error);
