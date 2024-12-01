@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 async function startServer() {
   try {
     await db;
-    console.log('✔️  Berhasil terhubung ke database');
+    console.log('✔️  Berhasil terhubung ke MongoDB');
 
     app.use(cors()); 
     app.use(express.json({ limit: '150mb' }));
