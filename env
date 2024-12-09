@@ -1,0 +1,2 @@
+DB_URL = "mongodb+srv://muhammadzidanmaulana18:zidan1234567@cluster0.gltr4.mongodb.net/manpro"
+JWT_KEY = zidankontlo
