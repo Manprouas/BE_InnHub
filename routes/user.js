@@ -1,8 +1,16 @@
-const express = require('express')
-const { login, register } = require('../controllers/user.controllers')
-const router = express.Router()
+const express = require('express');
+const { login, register, getProfile, updateProfile, verifyToken } = require('../controllers/user.controllers');
+const router = express.Router();
+const upload = require('../middleware/upload'); // Middleware upload
 
-router.post('/login', login)
-router.post('/register', register)
+// Routes lain...
+router.post('/login', login);
+router.post('/register', register);
 
-module.exports = router
+// Gunakan middleware verifyToken untuk endpoint profil
+router.get('/profile', verifyToken, getProfile);
+
+// Endpoint untuk mengupdate profil dan upload gambar
+router.put('/profile', verifyToken, upload.single('gambar'), updateProfile);
+
+module.exports = router;

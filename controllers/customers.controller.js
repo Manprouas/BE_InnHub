@@ -64,25 +64,26 @@ module.exports = {
             if (err) {
                 return res.status(400).json({ message: 'Error uploading image', error: err.message });
             }
-
+    
             try {
                 const user = await User.findById(req.params.id);
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
-
+    
+                // Hapus gambar lama jika ada
                 if (req.file) {
                     const oldImagePath = path.join(__dirname, '../uploads', user.gambar);
                     if (fs.existsSync(oldImagePath)) {
                         fs.unlinkSync(oldImagePath);
                     }
                 }
-
+    
                 const updates = { ...req.body };
                 if (req.file) {
-                    updates.gambar = req.file.filename;
+                    updates.gambar = req.file.filename; // Menyimpan gambar baru
                 }
-
+    
                 const updatedUser = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
                 res.status(200).json(updatedUser);
             } catch (error) {

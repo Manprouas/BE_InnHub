@@ -21,9 +21,9 @@ module.exports = {
     getAllComplaints: async (req, res) => {
         try {
             const complaints = await Complaint.find()
-                .populate('userID', 'name email') // Populate user data if necessary
-                .populate('hotelID', 'name location') // Populate hotel data if necessary
-                .populate('roomID', 'roomNumber'); // Populate room data if necessary
+                .populate('userID', 'email') // Populate user data if necessary
+                .populate('hotelID', 'hotelname') // Populate hotel data if necessary
+                .populate('roomID', 'roomtype'); // Populate room data if necessary
 
             res.status(200).json({ message: 'Complaints retrieved successfully', data: complaints });
         } catch (error) {
@@ -37,9 +37,9 @@ module.exports = {
         try {
             const { id } = req.params;
             const complaint = await Complaint.findById(id)
-                .populate('userID', 'name email') // Populate user data if necessary
-                .populate('hotelID', 'name location') // Populate hotel data if necessary
-                .populate('roomID', 'roomNumber'); // Populate room data if necessary
+                .populate('userID', 'email') // Populate user data if necessary
+                .populate('hotelID', 'hotelname') // Populate hotel data if necessary
+                .populate('roomID', 'roomtype'); // Populate room data if necessary
 
             if (!complaint) {
                 return res.status(404).json({ message: 'Complaint not found' });
