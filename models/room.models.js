@@ -9,6 +9,7 @@ const roomSchema = new mongoose.Schema({
     price: Number,
     phone: Number,
     address: String,
+    photo: String,
     hotelID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Hotel"
