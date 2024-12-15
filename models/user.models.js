@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     phone: Number,
     is_admin: {
         type: Boolean,
-        default: true
+        default: false
     },
     gambar: String,
     date: {
