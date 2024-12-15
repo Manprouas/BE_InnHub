@@ -3,8 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.models');
 require('dotenv').config(); 
 
-
-
 module.exports = {
  register: async (req, res) => {
     try {
@@ -46,6 +44,11 @@ login: async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        if (!process.env.JWT_KEY) {
+            console.error('JWT_KEY is not defined');
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+
         const token = jwt.sign(
             { userId: user._id, is_admin: user.is_admin },
             process.env.JWT_KEY,
@@ -58,6 +61,7 @@ login: async (req, res) => {
         res.status(500).json({ message: 'Something went wrong', error: error.message });
     }
 },
+
 
 verifyToken: (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
